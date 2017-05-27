@@ -23,6 +23,10 @@ define([
         this.grepSearch = FindGetParam('grep');
         this.failOnly = !!$.parseJSON(FindGetParam('failOnly'));
 
+        var isPromise = function(thing) {
+            return thing && thing.then && thing.catch;
+        }
+
         this.execTest = function(mainName, testName, testFn) {
             var myself = this;
             var validTest = true;
@@ -36,17 +40,7 @@ define([
                 return;
             }
 
-            setTimeout(function() {
-                var startTime = new Date();
-                var succeed = null;
-                var errorMsg = null;
-                try {
-                    testFn();
-                    succeed = true;
-                } catch (error) {
-                    succeed = false;
-                    errorMsg = error;
-                }
+            var completeTest = function(startTime, succeed, errorMsg) {
                 var timeSpent = new Date() - startTime;
 
                 if ((myself.failOnly && !succeed) || !myself.failOnly) {
@@ -63,6 +57,32 @@ define([
                     myself.updateCounters(succeed);
                     myself.renderTest(succeed, mainName, testName, timeSpent, errorMsg);
                 }
+            }
+
+            setTimeout(function() {
+                var startTime = new Date();
+                var succeed = null;
+                var errorMsg = null;
+                try {
+                    var returnedThing = testFn();
+
+                    if (isPromise(returnedThing)) {
+                        returnedThing.then(function() {
+                            completeTest(startTime, true, null);
+                        })
+                        .catch(function(error) {
+                            completeTest(startTime, false, error);
+                        });
+                        return;
+                    }
+
+                    succeed = true;
+                } catch (error) {
+                    succeed = false;
+                    errorMsg = error;
+                }
+
+                completeTest(startTime, succeed, errorMsg);
             }, 0);
         }
 
