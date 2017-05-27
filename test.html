@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- META -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>TestSuite - TEST</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/6.0.0/normalize.min.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.light_blue-orange.min.css" />
+        <link href="//fonts.googleapis.com/css?family=Roboto:400,100,500,300italic,500italic,700italic,900,300">
+
+        <link rel="stylesheet" href="./style/test.css" />
+
+        <!-- JS -->
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <script data-main="scripts/test" src="scripts/lib/require.js"></script>
+    </head>
+    <body>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <div class="mdl-layout-spacer"></div>
+                    <form method="GET">
+                       <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+                        <label class="mdl-button mdl-js-button mdl-button--icon" for="grep">
+                            <i class="material-icons">search</i>
+                        </label>
+                        <div class="mdl-textfield__expandable-holder">
+                            <input class="mdl-textfield__input" type="text" name="grep" id="grep">
+                            <label class="mdl-textfield__label" for="grep-expandable">Expandable Input</label>
+                        </div>
+                      </div>
+                    </form>
+                    <div class="mdl-layout-spacer"></div>
+                    <span class="mdl-layout-title TestReport">
+                        Test: <span class="tests-quantity">0</span>&nbsp;|&nbsp;
+                        <i class="material-icons">access_time</i>&nbsp;
+                        <span class="tests-time">0</span>ms&nbsp;|&nbsp;&nbsp;
+                        <i class="material-icons mdl-list__item-avatar icon-succeed">
+                            done
+                        </i>&nbsp;<span class="tests-succeed-quantity">0</span>
+                        &nbsp;|&nbsp;
+                        <i class="material-icons mdl-list__item-avatar icon-failed">
+                            close
+                        </i>&nbsp;<span class="tests-failed-quantity">0</span>
+                    </span>
+                </div>
+            </header>
+            <div class="mdl-layout__drawer">
+                <span class="mdl-layout-title">TestSuite - Test</span>
+                <!-- Navigation -->
+                <nav class="mdl-navigation">
+                    <!-- TODO -->
+                    <a
+                        class="
+                            action-button-failOnly
+                            mdl-button
+                            mdl-js-button
+                            mdl-js-ripple-effect
+                            mdl-button--large
+                            mdl-button--accent
+                            mdl-button--raised
+                        "
+                        href="test.html"
+                        disabled>
+
+                        Run all tests
+                    </a>
+                    <a
+                        class="
+                            action-button-failOnly
+                            mdl-button
+                            mdl-js-button
+                            mdl-js-ripple-effect
+                            mdl-button--large
+                            mdl-button--colored
+                            mdl-button--raised
+                        "
+                        href="test.html?failOnly"
+                        disabled>
+
+                        Run failed test
+                    </a>
+                </nav>
+            </div>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="TestResultsArea mdl-list">
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>

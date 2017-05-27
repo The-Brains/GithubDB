@@ -1,0 +1,52 @@
+.TestReport {
+    font-size: 20px;
+}
+
+.TestReport i {
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.icon-succeed {
+    background-color: green !important;
+}
+
+.icon-failed {
+    background-color: red !important;
+}
+
+.mdl-list__item-primary-content {
+    flex: 100%;
+}
+.is-hidden {
+    display: none;
+}
+
+.mdl-button.mdl-button--full {
+    width: 100%;
+}
+
+.mdl-grid.mdl-grid--bleed {
+    padding: 0;
+}
+
+.page-content {
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+.logger {
+    margin-top: 0;
+    transition: margin-top 0.2s;
+    position: absolute;
+    font-size: 8px;
+}
+.logger.shifted {
+    margin-top: 8px;
+    transition: margin-top 0s;
+}
+
+.mdl-textfield.is-focused .mdl-textfield__label:after {
+    background-color: rgb(66,66,66);
+}
