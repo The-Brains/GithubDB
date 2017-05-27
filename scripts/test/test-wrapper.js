@@ -24,7 +24,7 @@ define([
         this.failOnly = !!$.parseJSON(FindGetParam('failOnly'));
 
         var isPromise = function(thing) {
-            return thing && thing.then && thing.catch;
+            return thing && thing.then && thing.catch && thing instanceof Promise;
         }
 
         this.execTest = function(mainName, testName, testFn) {
