@@ -12,6 +12,7 @@ requirejs.config({
         lodash: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min',
         seedRandom: 'https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min',
         gh3: 'gh3',
+        octokat: 'octokat',
     },
 });
 
@@ -20,7 +21,7 @@ define(function() {
     // your application logic in there.
     requirejs([
         'scripts/lib/material.min.js',
-        'scripts/test/githubAPI-githubConnector-test.js',
+        'scripts/test/githubAPI-githubConnector-2-test.js',
         'scripts/test/util-find-get-param-test.js',
     ]);
 });

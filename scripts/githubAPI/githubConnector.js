@@ -34,6 +34,7 @@ define(['jquery', 'lodash', 'gh3'], function($, _, Gh3) {
             k33gRepo.fetch(function (err, res) {
                 if(err) {
                     reject(err);
+                    return;
                 }
 
                 Github.repo = k33gRepo;
@@ -54,6 +55,7 @@ define(['jquery', 'lodash', 'gh3'], function($, _, Gh3) {
                 repo.fetchBranches(function (err, res) {
                     if(err) {
                         reject(err);
+                        return;
                     }
 
                     Github.master = repo.getBranchByName("master");
@@ -75,10 +77,46 @@ define(['jquery', 'lodash', 'gh3'], function($, _, Gh3) {
                 master.fetchContents(function (err, res) {
                     if(err) {
                         reject(err);
+                        return;
                     }
 
-                    Github.directory = master.getDirByName('data');
-                    resolve(Github.directory);
+                    var dir =  master.getDirByName('data');
+
+                    dir.fetchContents(function (err, res) {
+                        if(err) {
+                            reject(err);
+                            return;
+                        }
+
+                        // console.log(dir.getContents());
+                        // dir.eachContent(function (content) {
+                        //     console.log(content.name, content.type, content.size);
+                        // });
+
+                        Github.directory = dir;
+                        resolve(Github.directory);
+                    });
+                });
+            });
+        });
+    };
+
+    Github.getData = function(key) {
+        return new Promise(function(resolve, reject) {
+            var fileName = `${key}.json`;
+
+            return Github.getDataFolder()
+            .then(function(directory) {
+                var myfile = directory.getFileByName(fileName);
+
+                myfile.fetchContent(function (err, res) {
+                    if(err) {
+                        reject(err);
+                        return;
+                    }
+
+                    var rawData = myfile.getRawContent();
+                    resolve($.parseJSON(rawData));
                 });
             });
         });

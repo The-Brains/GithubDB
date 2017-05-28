@@ -41,5 +41,13 @@ define(
                     return Promise.resolve();
                 });
         });
+
+        testWrapper.execTest(mainName, 'should get test file content', function() {
+            return GithubConnector.getData('test_key')
+                .then(function(data) {
+                    expect(data).to.eql({'super data': 123});
+                    return Promise.resolve();
+                });
+        });
     }
 );
