@@ -1,10 +1,10 @@
 # GithubDB
-This is the repo where the DB library lives to use the database-storage repo.
+This is the repo where the DB library lives to use the
+[database-storage](https://github.com/The-Brains/database-storage) repo.
 
-[Run the tests](https://the-brains.github.io/GithubDB/test)
+[Run the tests](https://the-brains.github.io/GithubDB/test).
 
-Trying to make it works, using https://github.com/k33g/gh3
-
-If it doesnt work, other options are:
-* https://github.com/philschatz/octokat.js
-* https://github.com/github-tools/github
+You will need to set the GET parameter:
+* token : this will be your [Personal Access Token](https://github.com/settings/tokens)
+    * We are using the account the-brains-database to run it.
+* username : this is the username for the account.
