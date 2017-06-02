@@ -1,5 +1,5 @@
 define(
-    ['chai', './test-wrapper.js', '../githubAPI/githubConnector.js'],
+    ['chai', 'testWrapper', '../githubAPI/githubConnector.js'],
     function(chai, testWrapper, GithubConnector) {
         var expect = chai.expect;
         var mainName = 'githubAPI-githubConnector';

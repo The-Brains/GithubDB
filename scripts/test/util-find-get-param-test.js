@@ -1,5 +1,5 @@
 define(
-    ['chai', './test-wrapper.js', '../util/find-get-param.js'],
+    ['chai', 'testWrapper', '../util/find-get-param.js'],
     function(chai, testWrapper, FindGetParam) {
         var expect = chai.expect;
         var mainName = 'util-find-get-param';
