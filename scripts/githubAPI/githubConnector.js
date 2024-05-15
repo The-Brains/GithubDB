@@ -13,8 +13,8 @@ define([
     }
 
     var rootURL = 'https://api.github.com';
-    var organizationName = 'The-Brains';
-    var databaseStorageRepoName = 'database-storage';
+    var organizationName = FindGetParam('owner') ?? 'The-Brains';
+    var databaseStorageRepoName = FindGetParam('repo') ?? 'database-storage';
 
     Github.getData = function(key) {
         var my_atob = atob;
@@ -37,7 +37,7 @@ define([
             });
         })
         .catch(function(error) {
-            if (error.statusText === 'Not Found') {
+            if (error.responseJSON?.message === 'Not Found') {
                 return Promise.resolve({
                     data: null,
                     sha: null,
@@ -49,7 +49,6 @@ define([
     };
 
     Github.setData = function(key, value) {
-        var my_atob = atob;
 
         return Github.getData(key).then(function(data) {
             if (_.isEqual(value, data.data)) {
@@ -62,7 +61,7 @@ define([
             var content = btoa(JSON.stringify(value));
             var url = `${rootURL}/repos/${organizationName}/${databaseStorageRepoName}`
                 + `/contents/data/${key}.json`
-            var data = JSON.stringify({
+            var newData = JSON.stringify({
                 message: `Creating key/value for key: '${key}'`,
                 content: content,
                 sha: data.sha
@@ -79,7 +78,7 @@ define([
                 dataType: 'json',
                 method: 'PUT',
                 headers: headers,
-                data: data,
+                data: newData,
             })
             .then(function(data) {
                 return Promise.resolve({

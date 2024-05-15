@@ -20,7 +20,7 @@ define(
                 });
         });
 
-        testWrapper.execTest(mainName, 'should get test file content', function() {
+        testWrapper.execTest(mainName, 'should set test file content', function() {
             return GithubConnector.setData('test_set_key', {
                 key1: 12,
                 key2: 'key2Value',
