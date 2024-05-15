@@ -3,18 +3,21 @@ define([
         'lodash',
         '../util/find-get-param.js',
     ], function($, _, FindGetParam) {
+      const authToken = FindGetParam('token')
+      const username = FindGetParam('username')
+      const rootURL = 'https://api.github.com';
+      const organizationName = FindGetParam('owner') ?? 'The-Brains';
+      const databaseStorageRepoName = FindGetParam('repo') ?? 'database-storage';
+
     var Github = function() {
         var myself = this;
     };
-    Github.authToken = FindGetParam('token');
-    Github.username = FindGetParam('username');
+    Github.authToken = authToken;
+    Github.username = username;
     if (!Github.authToken || !Github.username) {
         throw 'Need to set GET request with "token" and "username".';
     }
 
-    var rootURL = 'https://api.github.com';
-    var organizationName = FindGetParam('owner') ?? 'The-Brains';
-    var databaseStorageRepoName = FindGetParam('repo') ?? 'database-storage';
 
     Github.getData = function(key) {
         var my_atob = atob;
