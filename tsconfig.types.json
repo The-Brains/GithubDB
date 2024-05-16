@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "outDir": "./out",
+    "declarationDir": "./out",
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "types": ["bun-types"],
+
+    "rootDir": "src",
+    "paths": { 
+      "@/*": ["src/*"]
+    },
+    "lib": ["ESNext"],
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "composite": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib", "types"]
+}
