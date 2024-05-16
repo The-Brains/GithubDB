@@ -1,4 +1,2 @@
 bun run build
-
-npx local-web-server \
-  --directory .
+bun run server
