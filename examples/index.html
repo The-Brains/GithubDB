@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- META -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Testing API after imported</title>
+        <script type="module">
+          import { getData, setData, DEFAULT_OPTIONS } from "./dist/index.js";
+          
+
+          document.getElementById("owner").value = DEFAULT_OPTIONS.organizationName;
+          document.getElementById("repo").value = DEFAULT_OPTIONS.databaseStorageRepoName;
+          document.getElementById("username").value = DEFAULT_OPTIONS.username;
+          const authToken = new URLSearchParams(location.search).get("authToken");
+          if (authToken) {
+            document.getElementById("authToken").value = authToken;
+          }
+
+          async function test() {
+            document.getElementById("update").disabled = true;
+            const options = {
+              username: document.getElementById("username").value,
+              authToken: document.getElementById("authToken").value,
+              organizationName: document.getElementById("owner").value,
+              databaseStorageRepoName: document.getElementById("repo").value,
+            };
+            await setData("example-data", {
+              "Hello": "World",
+              "now": new Date().toString(),
+            }, options); 
+            const result = await getData("example-data", options);
+            document.getElementById("data").value = JSON.stringify(result.data, null, "\t");
+            document.getElementById("update").disabled = false;
+          }
+          window.test = test;
+        </script>
+    </head>
+    <body>
+      <div>
+        <label for="owner">Owner: </label>
+        <input style="width: 300px" id="owner" value="">
+      </div>
+      <div>
+        <label for="repo">Repo: </label>
+        <input style="width: 300px" id="repo" value="">
+      </div>
+      <div>
+        <label for="username">Username: </label>
+        <input style="width: 300px" id="username" value="">
+      </div>
+      <div>
+        <label for="authToken">Authtoken: </label>
+        <input style="width: 300px" id="authToken" value="">
+        <div>Get authToken from <a target="_blank" href="https://github.com/settings/tokens">Personal Access Token</a></div>
+        <div>You can set a query parameter: ?authToken=[YOUR TOKEN]></div>
+      </div>
+      <hr>
+      <div>
+        <textarea id="data" style="width: 600px; height: 400px"></textarea>
+      </div>
+      <div>
+        <button id="update" onClick="test()">Update</button>
+      </div>
+    </body>
+</html>
