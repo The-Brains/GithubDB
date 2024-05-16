@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
+    "server": "npx local-web-server --directory .",
     "build": "rm -rf node_modules && bun i && bun build --target=node ./src/index.ts --outfile=dist/index.js"
   },
   "devDependencies": {
