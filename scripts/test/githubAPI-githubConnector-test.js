@@ -61,5 +61,26 @@ define(
                 });
             });
         });
+
+        testWrapper.execTest(mainName, 'should set test file content', function() {
+            return GithubConnector.setData('test_set_key', {
+                key1: 12,
+                key2: 'key2Value',
+            })
+            .then(function(data) {
+                expect(data.data).to.eql({
+                    key1: 12,
+                    key2: 'key2Value',
+                });
+                return Promise.resolve();
+            });
+        });
+
+        testWrapper.execTest(mainName, 'should set test binary content', async function() {
+            const response = await fetch("icon.png");
+            const blob = await response.blob();
+            const result = await GithubConnector.setData('test_set_binary.png', blob);
+            expect(result.data).to.eql(blob);
+        });
     }
 );

@@ -1,4 +1,12 @@
+// To recognize dom types (see https://bun.sh/docs/typescript#dom-types):
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+
 import {isEqual} from "lodash"
+const blobCompare = require('blob-compare').default;
+const mimeTypes = require('mimetypes');
+
+const EXTENSION_REGEX = /\.\w+/;
 
 export class GithubApi {
   authToken: string;
@@ -35,7 +43,8 @@ export class GithubApi {
   }
 
   async getData(key: string) {
-    const path = `contents/data/${key}.json`;
+    const extension = key.match(EXTENSION_REGEX)?.[0];
+    const path = `contents/data/${key}${extension ? "" : ".json"}`;
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     try {
@@ -47,12 +56,26 @@ export class GithubApi {
       });
       const data: any = await response.json();
       if (data.content) {
-        const content = atob(data.content);
-        const parsed = JSON.parse(content);
-        return {
-          data: parsed,
-          sha: data.sha,
-        };  
+        switch(extension?.toLocaleLowerCase()) {
+          case ".json":
+          case undefined:
+            {
+              const content = atob(data.content);
+              return {
+                data: JSON.parse(content),
+                sha: data.sha,
+              };  
+            }
+          default:
+            {
+              const types = mimeTypes.detectMimeType(extension);
+              const response = await fetch(`data:${types};base64,${data.content}`);
+              return {
+                data: await response.blob(),
+                sha: data.sha,
+              };
+            }
+        }
       } else if (data.message === "Not Found") {
         return {
           data: null, sha: null,
@@ -71,13 +94,37 @@ export class GithubApi {
     }
   }
 
+  private async makeBase64Blob(blob: Blob) {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise(resolve => {
+      reader.onloadend = () => {
+        const uri = reader.result;
+        if (typeof(uri) === "string" && uri.indexOf("data:") === 0) {
+          resolve(uri.split(",")[1]);
+        } else {
+          resolve(uri);
+        }
+      };
+    });
+  }
+
   async setData(key: string, value: any) {
     const data = await this.getData(key);
-    if (isEqual(value, data.data)) {
-      return data;
+    const isBlob = value instanceof Blob;
+
+    if (data.data) {
+      if (isBlob) {
+        if (blobCompare.isEqual(value, data.data)) {
+          return data;
+        }
+      } else if (isEqual(value, data.data)) {
+        return data;
+      }  
     }
-    const content = btoa(JSON.stringify(value));
-    const path = `contents/data/${key}.json`;
+    const hasExtension = EXTENSION_REGEX.test(key);
+    const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
+    const content = isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({

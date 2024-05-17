@@ -58,5 +58,8 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "blob-compare": "^1.1.0",
+    "mimetypes": "^0.1.1"
+  }
 }
