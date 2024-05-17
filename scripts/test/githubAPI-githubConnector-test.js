@@ -4,7 +4,7 @@ define(
         var expect = chai.expect;
         var mainName = 'githubAPI-githubConnector';
 
-        testWrapper.execTest(mainName, 'should get test file content', async function() {
+        testWrapper.execTest(mainName, 'should get test file content', function() {
             return GithubConnector.getData('test_key')
                 .then(function(data) {
                     expect(data.data).to.eql({'super data': 123});
@@ -12,7 +12,7 @@ define(
                 });
         });
 
-        testWrapper.execTest(mainName, 'should return empty if no file', async function() {
+        testWrapper.execTest(mainName, 'should return empty if no file', function() {
             return GithubConnector.getData('something_which_dont_exist')
                 .then(function(data) {
                     expect(data).to.eql({data: null, sha: null});
@@ -20,7 +20,7 @@ define(
                 });
         });
 
-        testWrapper.execTest(mainName, 'should set test file content', async function() {
+        testWrapper.execTest(mainName, 'should set test file content', function() {
             return GithubConnector.setData('test_set_key', {
                 key1: 12,
                 key2: 'key2Value',
@@ -34,7 +34,7 @@ define(
             });
         });
 
-        testWrapper.execTest(mainName, 'should get/set keys', async function() {
+        testWrapper.execTest(mainName, 'should get/set keys', function() {
             var key = 'test_get_set_key';
             var data = {
                 something: 123,
@@ -62,7 +62,7 @@ define(
             });
         });
 
-        testWrapper.execTest(mainName, 'should set test file content', async function() {
+        testWrapper.execTest(mainName, 'should set test file content', function() {
             return GithubConnector.setData('test_set_key', {
                 key1: 12,
                 key2: 'key2Value',
