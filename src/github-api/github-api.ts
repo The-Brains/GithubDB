@@ -2,8 +2,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-import {isEqual} from "lodash"
-const blobCompare = require('blob-compare').default;
+const deepEqual = require("deep-equal");
 const mimeTypes = require('mimetypes');
 
 const EXTENSION_REGEX = /\.\w+/;
@@ -119,19 +118,15 @@ export class GithubApi {
   async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), retries: number = 3): Promise<any> {
     const data = await this.getData(key);
     const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
-    const isBlob = value instanceof Blob;
 
     if (data.data) {
-      if (isBlob) {
-        if (blobCompare.isEqual(value, data.data)) {
-          return data;
-        }
-      } else if (isEqual(value, data.data)) {
+      if (deepEqual(value, data.data)) {
         return data;
       }  
     }
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
+    const isBlob = value instanceof Blob;
     const content = isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
