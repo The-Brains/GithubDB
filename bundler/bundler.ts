@@ -3,7 +3,7 @@ async function bundle() {
     entrypoints: ['./src/index.ts'],
     outdir: './out',
     minify: true,
-    target: "browser",
+    target: "bun",
   });
 }
 

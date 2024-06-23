@@ -109,8 +109,16 @@ export class GithubApi {
     });
   }
 
-  async setData(key: string, value: any) {
+  /**
+   * 
+   * @param key where to store the data. ex: "subdir/my-key".
+   * @param valueOrCall the value to set it to, or a callback which takes the old data and return the new data.
+   * @param retries number of retries in case of failure, default 3
+   * @returns 
+   */
+  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), retries: number = 3): Promise<any> {
     const data = await this.getData(key);
+    const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
     const isBlob = value instanceof Blob;
 
     if (data.data) {
@@ -140,9 +148,14 @@ export class GithubApi {
       body: newData,
     });
     const jsonResponse: any = await response.json();
+    if (!jsonResponse.content && retries > 0) {
+      console.warn(`Commit failed. Retries: ${retries}`, jsonResponse);
+      //  Commit failed, possibly due to another merge in between. Try this again
+      return this.setData(key, valueOrCall, retries - 1);
+    }
     return {
       data: value,
-      sha: jsonResponse.content.sha,
+      sha: jsonResponse.content?.sha,
     };
   }
 }
