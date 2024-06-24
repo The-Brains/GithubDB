@@ -3,14 +3,13 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "server": "npx local-web-server --directory .",
-    "build": "rm -rf node_modules && bun i && bun build --target=node ./src/index.ts --outfile=dist/index.js"
+    "build": "rm -rf node_modules && bun i && bun run ./bundler/bundler.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.1.5"
   },
   "peerDependencies": {
     "typescript": "^5.0.0",
-    "githubdb": "link:githubdb"
+    "@the-brains/github-db": "link:@the-brains/github-db"
   }
 }

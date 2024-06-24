@@ -1,14 +1,12 @@
-import { BuildOutput } from "bun";
-
-async function bundle(): Promise<BuildOutput> {
+async function bundleExample() {
   return await Bun.build({
     entrypoints: ['./src/index.ts'],
     outdir: './out',
     minify: true,
-    target: "bun",
+    target: "browser",
   });
 }
 
-bundle().then(result => {
+bundleExample().then(result => {
   result.logs.forEach(log => console.log(log));
 });

@@ -1,4 +1,4 @@
-import { GithubApi } from "../../out";
+import { GithubApi } from "@the-brains/github-db";
 
 export const DEFAULT_OPTIONS = {
   username: "jacklehamster",
