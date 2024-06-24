@@ -2,8 +2,7 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-import {isEqual} from "lodash"
-const blobCompare = require('blob-compare').default;
+const deepEqual = require("deep-equal");
 const mimeTypes = require('mimetypes');
 
 const EXTENSION_REGEX = /\.\w+/;
@@ -109,21 +108,25 @@ export class GithubApi {
     });
   }
 
-  async setData(key: string, value: any) {
+  /**
+   * 
+   * @param key where to store the data. ex: "subdir/my-key".
+   * @param valueOrCall the value to set it to, or a callback which takes the old data and return the new data.
+   * @param retries number of retries in case of failure, default 3
+   * @returns 
+   */
+  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), retries: number = 3): Promise<any> {
     const data = await this.getData(key);
-    const isBlob = value instanceof Blob;
+    const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
-      if (isBlob) {
-        if (blobCompare.isEqual(value, data.data)) {
-          return data;
-        }
-      } else if (isEqual(value, data.data)) {
+      if (deepEqual(value, data.data)) {
         return data;
       }  
     }
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
+    const isBlob = value instanceof Blob;
     const content = isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
@@ -140,9 +143,14 @@ export class GithubApi {
       body: newData,
     });
     const jsonResponse: any = await response.json();
+    if (!jsonResponse.content && retries > 0) {
+      console.warn(`Commit failed. Retries: ${retries}`, jsonResponse);
+      //  Commit failed, possibly due to another merge in between. Try this again
+      return this.setData(key, valueOrCall, retries - 1);
+    }
     return {
       data: value,
-      sha: jsonResponse.content.sha,
+      sha: jsonResponse.content?.sha,
     };
   }
 }

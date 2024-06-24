@@ -4,7 +4,9 @@ define(
         var expect = chai.expect;
         var mainName = 'githubAPI-githubConnector';
 
-        testWrapper.execTest(mainName, 'should get test file content', function() {
+        testWrapper.execTest(mainName, 'should get test file content', async function() {
+            await GithubConnector.setData('test_key', {'super data': 123});
+
             return GithubConnector.getData('test_key')
                 .then(function(data) {
                     expect(data.data).to.eql({'super data': 123});

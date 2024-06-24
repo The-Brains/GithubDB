@@ -1,6 +1,6 @@
 {
   "name": "@the-brains/github-db",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/the-brains/GithubDB.git"
@@ -42,10 +42,10 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
-    "@dobuki/auto-publish": "^1.0.7",
+    "@dobuki/auto-publish": "^1.0.20",
     "@types/bun": "latest",
+    "@types/deep-equal": "^1.0.4",
     "@types/jquery": "^3.5.30",
-    "@types/lodash.isequal": "^4.5.8",
     "@types/node": "^20.12.12",
     "@types/requirejs": "^2.1.37",
     "babel-cli": "^6.26.0",
@@ -59,7 +59,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "blob-compare": "^1.1.0",
+    "deep-equal": "^2.2.3",
     "mimetypes": "^0.1.1"
   }
 }
