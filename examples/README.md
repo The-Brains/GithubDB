@@ -1,15 +1,9 @@
-# examples
+# GithubDB examples
 
-To install dependencies:
+This is the directory hosting the example page for GithubDB.
 
-```bash
-bun install
-```
+To use it, run the server and go to:
+<http://localhost:8000/examples>
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.26. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+This is also available on:
+<https://the-brains.github.io/GithubDB/examples/>

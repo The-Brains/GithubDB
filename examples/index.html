@@ -1,12 +1,13 @@
 <!doctype html>
-<html>
+<html lang="en-US">
     <head>
+        <meta charset="utf-8">
         <!-- META -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <title>Testing API after imported</title>
         <script type="module">
-          import { getData, setData, DEFAULT_OPTIONS } from "./dist/index.js";
+          import { getData, setData, DEFAULT_OPTIONS } from "./out/index.js";
           
 
           document.getElementById("owner").value = DEFAULT_OPTIONS.organizationName;
@@ -35,29 +36,43 @@
           }
           window.test = test;
         </script>
+        <style>
+          input {
+            width: 300px;
+          }
+          textarea {
+            width: 600px;
+            height: 400px;
+          }
+        </style>
     </head>
     <body>
       <div>
         <label for="owner">Owner: </label>
-        <input style="width: 300px" id="owner" value="">
+        <input id="owner" value="">
       </div>
       <div>
         <label for="repo">Repo: </label>
-        <input style="width: 300px" id="repo" value="">
+        <input id="repo" value="">
       </div>
       <div>
         <label for="username">Username: </label>
-        <input style="width: 300px" id="username" value="">
+        <input id="username" value="">
       </div>
       <div>
         <label for="authToken">Authtoken: </label>
-        <input style="width: 300px" id="authToken" value="">
-        <div>Get authToken from <a target="_blank" href="https://github.com/settings/tokens">Personal Access Token</a></div>
+        <input id="authToken" value="">
+        <div>Get authToken from <a rel="noopener" target="_blank" href="https://github.com/settings/tokens">Personal Access Token</a></div>
         <div>You can set a query parameter: ?authToken=[YOUR TOKEN]></div>
       </div>
       <hr>
       <div>
-        <textarea id="data" style="width: 600px; height: 400px"></textarea>
+        <div>
+          <label for="data">Result:</label>
+        </div>
+        <div>
+          <textarea id="data"></textarea>
+        </div>
       </div>
       <div>
         <button id="update" onClick="test()">Update</button>
