@@ -7,6 +7,22 @@ const mimeTypes = require('mimetypes');
 
 const EXTENSION_REGEX = /\.\w+/;
 
+interface SetDataOptions {
+  retries: number;
+  branch?: string;
+  externalUsername?: string;
+  committer?: {
+    name: string;
+    email: string;
+    date?: string;
+  };
+  author?: {
+    name: string;
+    email: string;
+    date?: string;
+  };
+}
+
 export class GithubApi {
   authToken: string;
   username: string;
@@ -115,7 +131,7 @@ export class GithubApi {
    * @param retries number of retries in case of failure, default 3
    * @returns 
    */
-  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), retries: number = 3): Promise<any> {
+  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), options?: SetDataOptions): Promise<any> {
     const data = await this.getData(key);
     const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
@@ -133,20 +149,28 @@ export class GithubApi {
     const newData = JSON.stringify({
         message: `Creating key/value for key: '${key}'`,
         content: content,
-        sha: data.sha
+        sha: data.sha,
+        branch: options?.branch,
+        committer: options?.committer ?? {
+          name: "GithubDB[bot]",
+          email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
+        },
+        author: options?.author,
     });
     const response = await fetch(url, {
       method: "PUT",
       headers: {
+        accept: "application/vnd.github+json",
         Authorization: this.headerAuthorization(),
       },
       body: newData,
     });
     const jsonResponse: any = await response.json();
-    if (!jsonResponse.content && retries > 0) {
-      console.warn(`Commit failed. Retries: ${retries}`, jsonResponse);
+    const numRetries = (options?.retries ?? 3);
+    if (!jsonResponse.content && numRetries > 0) {
+      console.warn(`Commit failed. Retries: ${numRetries}`, jsonResponse);
       //  Commit failed, possibly due to another merge in between. Try this again
-      return this.setData(key, valueOrCall, retries - 1);
+      return this.setData(key, valueOrCall, { ...options, retries: numRetries - 1 });
     }
     return {
       data: value,
