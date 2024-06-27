@@ -7,7 +7,7 @@
 
         <title>Testing API after imported</title>
         <script type="module">
-          import { getData, setData, DEFAULT_OPTIONS } from "./out/index.js";
+          import { getData, setData, getList, DEFAULT_OPTIONS } from "./out/index.js";
           
 
           document.getElementById("owner").value = DEFAULT_OPTIONS.organizationName;
@@ -31,10 +31,24 @@
               "now": new Date().toString(),
             }, options); 
             const result = await getData("example-data", options);
-            document.getElementById("data").value = JSON.stringify(result.data, null, "\t");
+            document.getElementById("data").value = JSON.stringify(result, null, "\t");
             document.getElementById("update").disabled = false;
           }
           window.test = test;
+
+          async function list() {
+            document.getElementById("list").disabled = true;
+            const options = {
+              username: document.getElementById("username").value,
+              authToken: document.getElementById("authToken").value,
+              organizationName: document.getElementById("owner").value,
+              databaseStorageRepoName: document.getElementById("repo").value,
+            };
+            const result = await getList(options); 
+            document.getElementById("data").value = JSON.stringify(result, null, "\t");
+            document.getElementById("list").disabled = false;
+          }
+          window.list = list;
         </script>
         <style>
           input {
@@ -75,7 +89,8 @@
         </div>
       </div>
       <div>
-        <button id="update" onClick="test()">Update</button>
+        <button type="button" id="update" onClick="test()">Update</button>
+        <button type="button" id="list" onClick="list()">List</button>
       </div>
     </body>
 </html>
