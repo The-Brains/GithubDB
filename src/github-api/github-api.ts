@@ -57,6 +57,22 @@ export class GithubApi {
     return "Basic " + btoa(`${this.username}:${this.authToken}`);
   }
 
+  async listKeys(keyprefix?: string, branch: string = "main", recursive = 1) {
+    const path = `git/trees/${branch}?recursive=${recursive}`;
+    const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: this.headerAuthorization(),
+      },
+    });
+    const data: any = await response.json();
+    return data.tree.map((t: any) => t.path)
+      .filter((p: string) => p.indexOf(`data/${keyprefix ?? ""}`)===0)
+      .map((p: string) => p.split('data/')[1]);
+  }
+
   async getData(key: string) {
     const extension = key.match(EXTENSION_REGEX)?.[0];
     const path = `contents/data/${key}${extension ? "" : ".json"}`;

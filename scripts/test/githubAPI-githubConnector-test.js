@@ -84,5 +84,12 @@ define(
             const result = await GithubConnector.setData('test_set_binary.png', blob);
             expect(result.data).to.eql(blob);
         });
+
+        testWrapper.execTest(mainName, 'should list keys', async function() {
+            await GithubConnector.setData('test_key', {'super data': 123});
+
+            const result = await GithubConnector.listKeys();
+            expect(result).to.include('test_key.json');
+        });
     }
 );

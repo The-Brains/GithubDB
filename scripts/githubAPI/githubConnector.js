@@ -33,5 +33,9 @@ define([
         return api.setData(key, value);
     };
 
+    Github.listKeys = function(prefix) {
+        return api.listKeys(prefix);
+    }
+
     return Github;
 });

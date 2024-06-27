@@ -23,3 +23,8 @@ export async function setData(key: string, value: any, options?: Options) {
   const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options});
   return api.setData(key, value);
 }
+
+export async function getList(options?: Options) {
+  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options});
+  return api.listKeys();
+}
