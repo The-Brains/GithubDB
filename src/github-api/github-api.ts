@@ -125,19 +125,31 @@ export class GithubApi {
     }
   }
 
-  private async makeBase64Blob(blob: Blob) {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return new Promise(resolve => {
-      reader.onloadend = () => {
-        const uri = reader.result;
-        if (typeof(uri) === "string" && uri.indexOf("data:") === 0) {
-          resolve(uri.split(",")[1]);
-        } else {
-          resolve(uri);
-        }
-      };
-    });
+  private async makeBase64Blob(blob: Blob): Promise<string> {
+    if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
+      // Browser environment
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          const uri = reader.result as string;
+          if (uri.indexOf('data:') === 0) {
+            resolve(uri.split(',')[1]);
+          } else {
+            reject(new Error('Failed to convert Blob to Base64'));
+          }
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read Blob'));
+        };
+      });
+    } else if (typeof Buffer !== 'undefined') {
+      // Node.js environment
+      const buffer = await blob.arrayBuffer();
+      return Buffer.from(buffer).toString('base64');
+    } else {
+      throw new Error('Unsupported environment');
+    }
   }
 
   /**
