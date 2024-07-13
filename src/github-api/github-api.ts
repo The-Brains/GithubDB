@@ -100,7 +100,7 @@ export class GithubApi {
           default:
             {
               const types = mimeTypes.detectMimeType(extension);
-              const response = await fetch(`data:${types};base64,${data.content}`);
+              const response = await fetch(`data:${types};base64,${data.content.replaceAll('\n', '')}`);
               return {
                 data: await response.blob(),
                 sha: data.sha,
