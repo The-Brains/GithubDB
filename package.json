@@ -35,7 +35,7 @@
     "build:declaration": "tsc --emitDeclarationOnly --project tsconfig.types.json",
     "build:example": "cd examples && bun i && bun run build && cd ..",
     "auto-publish": "npm explore @dobuki/auto-publish -- bun run auto-publish \"$(pwd)\"",
-    "test": "echo NoTest"
+    "test": "bun test"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.5",

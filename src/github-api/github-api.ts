@@ -2,8 +2,8 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-const deepEqual = require("deep-equal");
 const mimeTypes = require('mimetypes');
+import { compare } from "./util/compare";
 
 const EXTENSION_REGEX = /\.\w+/;
 
@@ -164,9 +164,14 @@ export class GithubApi {
     const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
-      if (deepEqual(value, data.data)) {
+      console.group("DATA", key);
+      console.log("OLD DATA", data.data);
+      console.log("NEW DATA", value);
+
+      if (await compare(value, data.data)) {
+        console.log("DEEP EQUAL", key);
         return data;
-      }  
+      }
     }
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
