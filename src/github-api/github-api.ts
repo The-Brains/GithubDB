@@ -164,12 +164,7 @@ export class GithubApi {
     const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
-      console.group("DATA", key);
-      console.log("OLD DATA", data.data);
-      console.log("NEW DATA", value);
-
       if (await compare(value, data.data)) {
-        console.log("DEEP EQUAL", key);
         return data;
       }
     }
