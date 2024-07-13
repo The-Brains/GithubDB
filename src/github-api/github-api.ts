@@ -2,8 +2,8 @@
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 
-const deepEqual = require("deep-equal");
 const mimeTypes = require('mimetypes');
+import { compare } from "./util/compare";
 
 const EXTENSION_REGEX = /\.\w+/;
 
@@ -100,7 +100,7 @@ export class GithubApi {
           default:
             {
               const types = mimeTypes.detectMimeType(extension);
-              const response = await fetch(`data:${types};base64,${data.content}`);
+              const response = await fetch(`data:${types};base64,${data.content.replaceAll('\n', '')}`);
               return {
                 data: await response.blob(),
                 sha: data.sha,
@@ -164,9 +164,9 @@ export class GithubApi {
     const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
-      if (deepEqual(value, data.data)) {
+      if (await compare(value, data.data)) {
         return data;
-      }  
+      }
     }
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;

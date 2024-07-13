@@ -3,5 +3,6 @@
     "module": "amd",
     "target": "es5",
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
   },
 }
