@@ -94,5 +94,25 @@ define(
             expect(result).to.include({ type: "blob", key: 'folder/test_key.json' });
             expect(result).to.include({ type: "tree", key: 'folder' });
         });
+
+        testWrapper.execTest(mainName, 'should delete file content', async function() {
+            await GithubConnector.setData('to_delete', {'super data': 123});
+
+            const result = await GithubConnector.listKeys();
+            expect(result).to.include({ type: "blob", key: 'to_delete.json' });
+            await GithubConnector.setData('to_delete', null);
+
+            const result2 = await GithubConnector.listKeys();
+            expect(result2).not.to.include({ type: "blob", key: 'to_delete.json' });
+        });
+
+
+        testWrapper.execTest(mainName, 'should check list keys after creating new items', async function() {
+            await GithubConnector.setData('new_item', null);
+            await GithubConnector.setData('new_item', {'super data': 123});
+
+            const result = await GithubConnector.listKeys();
+            expect(result).to.include({ type: "blob", key: 'new_item.json' });
+        });
     }
 );

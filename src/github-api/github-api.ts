@@ -7,7 +7,7 @@ import { compare } from "./util/compare";
 
 const EXTENSION_REGEX = /\.\w+/;
 
-interface SetDataOptions {
+export interface SetDataOptions {
   retries: number;
   branch?: string;
   externalUsername?: string;
@@ -174,7 +174,7 @@ export class GithubApi {
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
     const isBlob = value instanceof Blob;
-    const content = isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
+    const content = value === null ? null : isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({
@@ -183,13 +183,13 @@ export class GithubApi {
         sha: data.sha,
         branch: options?.branch,
         committer: options?.committer ?? {
-          name: "GithubDB[bot]",
+          name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
           email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
         },
         author: options?.author,
     });
     const response = await fetch(url, {
-      method: "PUT",
+      method: content === null || content === undefined ? "DELETE" : "PUT",
       headers: this.headers,
       body: newData,
     });
