@@ -7,7 +7,7 @@ import { compare } from "./util/compare";
 
 const EXTENSION_REGEX = /\.\w+/;
 
-interface SetDataOptions {
+export interface SetDataOptions {
   retries: number;
   branch?: string;
   externalUsername?: string;
@@ -53,7 +53,14 @@ export class GithubApi {
     }
   }
 
-  headerAuthorization() {
+  get headers() {
+    return {
+      accept: "application/vnd.github+json",
+      Authorization: this.getHeaderAuthorization(),
+    };
+  }
+
+  getHeaderAuthorization() {
     return "Basic " + btoa(`${this.username}:${this.authToken}`);
   }
 
@@ -63,14 +70,12 @@ export class GithubApi {
 
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        Authorization: this.headerAuthorization(),
-      },
+      headers: this.headers,
     });
-    const data: any = await response.json();
-    return data.tree.map((t: any) => t.path)
-      .filter((p: string) => p.indexOf(`data/${keyprefix ?? ""}`)===0)
-      .map((p: string) => p.split('data/')[1]);
+    const data: { tree: { path: string; type: string }[] } = await response.json();
+    return data.tree
+      .filter((t) => t.path.indexOf(`data/${keyprefix ?? ""}`)===0)
+      .map((t) => ({ key: t.path.split('data/')[1], type: t.type }));
   }
 
   async getData(key: string) {
@@ -81,9 +86,7 @@ export class GithubApi {
     try {
       const response = await fetch(url, {
         method: "GET",
-        headers: {
-          Authorization: this.headerAuthorization(),
-        },
+        headers: this.headers,
       });
       const data: any = await response.json();
       if (data.content) {
@@ -171,7 +174,7 @@ export class GithubApi {
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
     const isBlob = value instanceof Blob;
-    const content = isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
+    const content = value === null ? null : isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value));
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({
@@ -180,17 +183,14 @@ export class GithubApi {
         sha: data.sha,
         branch: options?.branch,
         committer: options?.committer ?? {
-          name: "GithubDB[bot]",
+          name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
           email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
         },
         author: options?.author,
     });
     const response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        accept: "application/vnd.github+json",
-        Authorization: this.headerAuthorization(),
-      },
+      method: content === null || content === undefined ? "DELETE" : "PUT",
+      headers: this.headers,
       body: newData,
     });
     const jsonResponse: any = await response.json();

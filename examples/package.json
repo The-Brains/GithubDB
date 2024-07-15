@@ -6,7 +6,7 @@
     "build": "rm -rf node_modules && bun i && bun run ./bundler/bundler.ts"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.5"
+    "@types/bun": "^1.1.6"
   },
   "peerDependencies": {
     "typescript": "^5.0.0",
