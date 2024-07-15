@@ -87,9 +87,12 @@ define(
 
         testWrapper.execTest(mainName, 'should list keys', async function() {
             await GithubConnector.setData('test_key', {'super data': 123});
+            await GithubConnector.setData('folder/test_key', {'super data': 123});
 
             const result = await GithubConnector.listKeys();
-            expect(result).to.include('test_key.json');
+            expect(result).to.include({ type: "blob", key: 'test_key.json' });
+            expect(result).to.include({ type: "blob", key: 'folder/test_key.json' });
+            expect(result).to.include({ type: "tree", key: 'folder' });
         });
     }
 );

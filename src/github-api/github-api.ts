@@ -53,7 +53,14 @@ export class GithubApi {
     }
   }
 
-  headerAuthorization() {
+  get headers() {
+    return {
+      accept: "application/vnd.github+json",
+      Authorization: this.getHeaderAuthorization(),
+    };
+  }
+
+  getHeaderAuthorization() {
     return "Basic " + btoa(`${this.username}:${this.authToken}`);
   }
 
@@ -63,14 +70,12 @@ export class GithubApi {
 
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        Authorization: this.headerAuthorization(),
-      },
+      headers: this.headers,
     });
-    const data: any = await response.json();
-    return data.tree.map((t: any) => t.path)
-      .filter((p: string) => p.indexOf(`data/${keyprefix ?? ""}`)===0)
-      .map((p: string) => p.split('data/')[1]);
+    const data: { tree: { path: string; type: string }[] } = await response.json();
+    return data.tree
+      .filter((t) => t.path.indexOf(`data/${keyprefix ?? ""}`)===0)
+      .map((t) => ({ key: t.path.split('data/')[1], type: t.type }));
   }
 
   async getData(key: string) {
@@ -81,9 +86,7 @@ export class GithubApi {
     try {
       const response = await fetch(url, {
         method: "GET",
-        headers: {
-          Authorization: this.headerAuthorization(),
-        },
+        headers: this.headers,
       });
       const data: any = await response.json();
       if (data.content) {
@@ -187,10 +190,7 @@ export class GithubApi {
     });
     const response = await fetch(url, {
       method: "PUT",
-      headers: {
-        accept: "application/vnd.github+json",
-        Authorization: this.headerAuthorization(),
-      },
+      headers: this.headers,
       body: newData,
     });
     const jsonResponse: any = await response.json();
