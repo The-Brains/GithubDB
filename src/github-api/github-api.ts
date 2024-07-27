@@ -23,6 +23,11 @@ export interface SetDataOptions {
   };
 }
 
+enum DataType {
+  OBJECT = "object",
+  BLOB = "blob",
+}
+
 export class GithubApi {
   authToken: string;
   username: string;
@@ -96,15 +101,17 @@ export class GithubApi {
             {
               const content = atob(data.content);
               return {
+                type: DataType.OBJECT,
                 data: JSON.parse(content),
                 sha: data.sha,
               };  
             }
           default:
             {
-              const types = mimeTypes.detectMimeType(extension);
-              const response = await fetch(`data:${types};base64,${data.content.replaceAll('\n', '')}`);
+              const mimeType = mimeTypes.detectMimeType(extension);
+              const response = await fetch(`data:${mimeType};base64,${data.content.replaceAll('\n', '')}`);
               return {
+                type: DataType.BLOB,
                 data: await response.blob(),
                 sha: data.sha,
               };
