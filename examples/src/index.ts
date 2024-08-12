@@ -12,19 +12,20 @@ interface Options {
   authToken: string;
   organizationName: string;
   databaseStorageRepoName: string;
+  subfolder?: string;
 }
 
-export async function getData(key: string, options?: Options)  {
-  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options});
+export async function getData(key: string, options?: Options) {
+  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options });
   return api.getData(key);
 }
 
 export async function setData(key: string, value: any, options?: Options) {
-  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options});
+  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options });
   return api.setData(key, value);
 }
 
 export async function getList(options?: Options) {
-  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options});
-  return api.listKeys();
+  const api = new GithubApi({ ...DEFAULT_OPTIONS, ...options });
+  return api.listKeys(options?.subfolder, undefined, false);
 }

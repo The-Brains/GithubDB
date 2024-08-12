@@ -69,22 +69,41 @@ export class GithubApi {
     return "Basic " + btoa(`${this.username}:${this.authToken}`);
   }
 
-  async listKeys(keyprefix?: string, branch: string = "main", recursive: boolean = true) {
-    const params = new URLSearchParams({
-      ...(recursive ? { recursive: "1" } : {}),
+  private async listKeysSub(sha: string, subfolder: string): Promise<{ key: string; type: string; sha: string }[]> {
+    const path = `git/trees/${sha}`;
+    const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: this.headers,
     });
+    const data: { tree?: { path: string; type: string; sha: string }[] } = await response.json();
+    console.log(">>", subfolder, data.tree);
+    if (subfolder.length) {
+      const [subDir, ...rest] = subfolder.split("/");
+      const sha = data.tree?.find((t) => t.path === subDir && t.type === "tree")?.sha;
+      return sha ? await this.listKeysSub(sha, rest.join("/")) : [];
+    } else {
+      console.log(data.tree);
+      return data.tree?.map(({ path, type, sha }) => ({ key: path, type, sha })) ?? [];
+    }
+  }
 
-    const path = `git/trees/${branch}${params.entries.length ? `` : `?${params.toString()}`}`;
+  async listKeys(subfolder?: string, branch: string = "main", recursive: boolean = true) {
+    if (!recursive) {
+      return await this.listKeysSub(branch, subfolder?.length ? "data/" + (subfolder ?? "") : "data");
+    }
+
+    const path = `git/trees/${branch}?recursive=1`;
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: this.headers,
     });
-    const data: { tree?: { path: string; type: string }[] } = await response.json();
+    const data: { tree?: { path: string; type: string; sha: string }[] } = await response.json();
     return data.tree
-      ?.filter((t) => t.path.indexOf(`data/${keyprefix ?? ""}`) === 0)
-      .map((t) => ({ key: t.path.split('data/')[1], type: t.type })) ?? [];
+      ?.filter((t) => t.path.indexOf(`data/${subfolder ?? ""}`) === 0)
+      .map(({ path, type, sha }) => ({ key: path.split('data/')[1], type, sha })) ?? [];
   }
 
   async getData(key: string) {
