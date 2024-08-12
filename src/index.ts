@@ -1,1 +1,2 @@
-export { GithubApi, SetDataOptions } from './github-api/github-api';
+export { GithubApi } from './github-api/github-api';
+export type { SetDataOptions } from './github-api/github-api';

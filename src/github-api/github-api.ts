@@ -69,18 +69,41 @@ export class GithubApi {
     return "Basic " + btoa(`${this.username}:${this.authToken}`);
   }
 
-  async listKeys(keyprefix?: string, branch: string = "main", recursive = 1) {
-    const path = `git/trees/${branch}?recursive=${recursive}`;
+  private async listKeysSub(sha: string, subfolder: string): Promise<{ key: string; type: string; sha: string }[]> {
+    const path = `git/trees/${sha}`;
+    const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: this.headers,
+    });
+    const data: { tree?: { path: string; type: string; sha: string }[] } = await response.json();
+    console.log(">>", subfolder, data.tree);
+    if (subfolder.length) {
+      const [subDir, ...rest] = subfolder.split("/");
+      const sha = data.tree?.find((t) => t.path === subDir && t.type === "tree")?.sha;
+      return sha ? await this.listKeysSub(sha, rest.join("/")) : [];
+    } else {
+      console.log(data.tree);
+      return data.tree?.map(({ path, type, sha }) => ({ key: path, type, sha })) ?? [];
+    }
+  }
+
+  async listKeys(subfolder?: string, branch: string = "main", recursive: boolean = true) {
+    if (!recursive) {
+      return await this.listKeysSub(branch, subfolder?.length ? "data/" + (subfolder ?? "") : "data");
+    }
+
+    const path = `git/trees/${branch}?recursive=1`;
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: this.headers,
     });
-    const data: { tree: { path: string; type: string }[] } = await response.json();
+    const data: { tree?: { path: string; type: string; sha: string }[] } = await response.json();
     return data.tree
-      .filter((t) => t.path.indexOf(`data/${keyprefix ?? ""}`)===0)
-      .map((t) => ({ key: t.path.split('data/')[1], type: t.type }));
+      ?.filter((t) => t.path.indexOf(`data/${subfolder ?? ""}`) === 0)
+      .map(({ path, type, sha }) => ({ key: path.split('data/')[1], type, sha })) ?? [];
   }
 
   async getData(key: string) {
@@ -95,7 +118,7 @@ export class GithubApi {
       });
       const data: any = await response.json();
       if (data.content) {
-        switch(extension?.toLocaleLowerCase()) {
+        switch (extension?.toLocaleLowerCase()) {
           case ".json":
           case undefined:
             {
@@ -104,7 +127,7 @@ export class GithubApi {
                 type: DataType.OBJECT,
                 data: JSON.parse(content),
                 sha: data.sha,
-              };  
+              };
             }
           default:
             {
@@ -171,7 +194,7 @@ export class GithubApi {
    */
   async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), options?: SetDataOptions): Promise<any> {
     const data = await this.getData(key);
-    const value = typeof(valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
+    const value = typeof (valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
       if (await compare(value, data.data)) {
@@ -185,15 +208,15 @@ export class GithubApi {
     const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({
-        message: `Creating key/value for key: '${key}'`,
-        content: content,
-        sha: data.sha,
-        branch: options?.branch,
-        committer: options?.committer ?? {
-          name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
-          email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
-        },
-        author: options?.author,
+      message: `Creating key/value for key: '${key}'`,
+      content: content,
+      sha: data.sha,
+      branch: options?.branch,
+      committer: options?.committer ?? {
+        name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
+        email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
+      },
+      author: options?.author,
     });
     const response = await fetch(url, {
       method: content === null || content === undefined ? "DELETE" : "PUT",
