@@ -8,7 +8,7 @@ import { compare } from "./util/compare";
 const EXTENSION_REGEX = /\.\w+/;
 
 export interface SetDataOptions {
-  retries: number;
+  retries?: number;
   branch?: string;
   externalUsername?: string;
   committer?: {
