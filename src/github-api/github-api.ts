@@ -127,6 +127,7 @@ export class GithubApi {
                 type: DataType.OBJECT,
                 data: JSON.parse(content),
                 sha: data.sha,
+                url: data.download_url,
               };
             }
           default:
@@ -137,6 +138,7 @@ export class GithubApi {
                 type: DataType.BLOB,
                 data: await response.blob(),
                 sha: data.sha,
+                url: data.download_url,
               };
             }
         }
@@ -145,7 +147,10 @@ export class GithubApi {
           data: null, sha: null,
         }
       } else {
-        throw new Error("Unable to parse response.");
+        return {
+          data: null, sha: data.sha, message: data.message,
+          url: data.download_url,
+        }
       }
     } catch (e: any) {
       if (e.responseJSON?.message === "Not Found") {

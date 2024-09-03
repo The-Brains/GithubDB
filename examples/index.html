@@ -14,14 +14,18 @@
         DEFAULT_OPTIONS,
       } from "./out/index.js";
 
-      document.getElementById("owner").value = DEFAULT_OPTIONS.organizationName;
+      document.getElementById("owner").value =
+        localStorage.getItem("owner") ?? DEFAULT_OPTIONS.organizationName;
       document.getElementById("repo").value =
-        DEFAULT_OPTIONS.databaseStorageRepoName;
-      document.getElementById("username").value = DEFAULT_OPTIONS.username;
+        localStorage.getItem("repo") ?? DEFAULT_OPTIONS.databaseStorageRepoName;
+      document.getElementById("username").value =
+        localStorage.getItem("username") ?? DEFAULT_OPTIONS.username;
       const authToken = new URLSearchParams(location.search).get("authToken");
       if (authToken) {
         document.getElementById("authToken").value = authToken;
       }
+      document.getElementById("subfolder").value =
+        localStorage.getItem("subfolder") ?? "";
 
       async function test() {
         document.getElementById("update").disabled = true;
@@ -58,6 +62,11 @@
           databaseStorageRepoName: document.getElementById("repo").value,
           subfolder: document.getElementById("subfolder").value,
         };
+        localStorage.setItem("owner", options.organizationName);
+        localStorage.setItem("repo", options.databaseStorageRepoName);
+        localStorage.setItem("username", options.username);
+        localStorage.setItem("subfolder", options.subfolder);
+
         const result = await getList(options);
         document.getElementById("data").value = JSON.stringify(
           result,
@@ -65,6 +74,40 @@
           "\t"
         );
         document.getElementById("list").disabled = false;
+
+        const dataDiv = document.getElementById("data-div");
+        const imageElem = document.getElementById("image");
+
+        buttons.innerHTML = "";
+        dataDiv.textContent = "";
+        imageElem.style.display = "none";
+        if (Array.isArray(result)) {
+          result.forEach((item) => {
+            const type = item.type;
+            if (type === "blob") {
+              const button = buttons.appendChild(
+                document.createElement("button")
+              );
+              button.textContent = item.key;
+              button.addEventListener("click", async () => {
+                const data = await getData(
+                  `${options.subfolder}/${item.key}`,
+                  options
+                );
+                dataDiv.textContent = JSON.stringify(data, null, "\t");
+
+                if (data.data?.constructor === Blob) {
+                  const url = URL.createObjectURL(data.data);
+                  imageElem.src = url;
+                  imageElem.style.display = "block";
+                } else if (!data.data && data.url) {
+                  imageElem.src = data.url;
+                  imageElem.style.display = "block";
+                }
+              });
+            }
+          });
+        }
       }
       window.list = list;
     </script>
@@ -122,5 +165,10 @@
       <button type="button" id="update" onClick="test()">Update</button>
       <button type="button" id="list" onClick="list()">List</button>
     </div>
+    <div id="buttons"></div>
+    Data:
+    <div id="data-div"></div>
+    Image:
+    <img alt="image" id="image" style="display: none" />
   </body>
 </html>
