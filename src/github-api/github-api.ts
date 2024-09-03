@@ -127,6 +127,7 @@ export class GithubApi {
                 type: DataType.OBJECT,
                 data: JSON.parse(content),
                 sha: data.sha,
+                size: data.size,
                 url: data.download_url,
               };
             }
@@ -138,6 +139,7 @@ export class GithubApi {
                 type: DataType.BLOB,
                 data: await response.blob(),
                 sha: data.sha,
+                size: data.size,
                 url: data.download_url,
               };
             }
@@ -148,8 +150,11 @@ export class GithubApi {
         }
       } else {
         return {
-          data: null, sha: data.sha, message: data.message,
+          data: null,
+          sha: data.sha,
+          message: data.message,
           url: data.download_url,
+          size: data.size,
         }
       }
     } catch (e: any) {
