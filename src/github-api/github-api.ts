@@ -117,26 +117,28 @@ export class GithubApi {
         headers: this.headers,
       });
       const data: any = await response.json();
+      const ext = extension?.toLocaleLowerCase();
+      const type = ext === ".json" || !ext ? DataType.OBJECT : DataType.BLOB;
+
       if (data.content) {
-        switch (extension?.toLocaleLowerCase()) {
-          case ".json":
-          case undefined:
+        switch (type) {
+          case DataType.OBJECT:
             {
               const content = atob(data.content);
               return {
-                type: DataType.OBJECT,
+                type,
                 data: JSON.parse(content),
                 sha: data.sha,
                 size: data.size,
                 url: data.download_url,
               };
             }
-          default:
+          case DataType.BLOB:
             {
               const mimeType = mimeTypes.detectMimeType(extension);
               const response = await fetch(`data:${mimeType};base64,${data.content.replaceAll('\n', '')}`);
               return {
-                type: DataType.BLOB,
+                type,
                 data: await response.blob(),
                 sha: data.sha,
                 size: data.size,
@@ -150,6 +152,7 @@ export class GithubApi {
         }
       } else {
         return {
+          type,
           data: null,
           sha: data.sha,
           message: data.message,
