@@ -7,7 +7,14 @@ import { compare } from "./util/compare";
 
 const EXTENSION_REGEX = /\.\w+/;
 
-export interface SetDataOptions {
+export interface DataOptions {
+  repo?: {
+    name: string;
+    owner: string;
+  };
+}
+
+export interface SetDataOptions extends DataOptions {
   retries?: number;
   branch?: string;
   externalUsername?: string;
@@ -106,10 +113,13 @@ export class GithubApi {
       .map(({ path, type, sha }) => ({ key: path.split('data/')[1], type, sha })) ?? [];
   }
 
-  async getData(key: string) {
+  async getData(key: string, options: DataOptions = {}) {
+    const organizationName = options.repo?.owner ?? this.organizationName;
+    const databaseStorageRepoName = options.repo?.name ?? this.databaseStorageRepoName;
+
     const extension = key.match(EXTENSION_REGEX)?.[0];
     const path = `contents/data/${key}${extension ? "" : ".json"}`;
-    const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
+    const url = `${this.rootURL}/repos/${organizationName}/${databaseStorageRepoName}/${path}`;
 
     try {
       const response = await fetch(url, {
@@ -205,7 +215,10 @@ export class GithubApi {
    * @param retries number of retries in case of failure, default 3
    * @returns 
    */
-  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), options?: SetDataOptions): Promise<any> {
+  async setData<T extends Object>(key: string, valueOrCall: T | ((prev: any) => Promise<T>), options: SetDataOptions = {}): Promise<any> {
+    const organizationName = options.repo?.owner ?? this.organizationName;
+    const databaseStorageRepoName = options.repo?.name ?? this.databaseStorageRepoName;
+
     const data = await this.getData(key);
     const value = typeof (valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
@@ -218,7 +231,7 @@ export class GithubApi {
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
     const isBlob = value instanceof Blob;
     const content = value === null ? null : isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value, null, 2));
-    const url = `${this.rootURL}/repos/${this.organizationName}/${this.databaseStorageRepoName}/${path}`;
+    const url = `${this.rootURL}/repos/${organizationName}/${databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({
       message: `Creating key/value for key: '${key}'`,
