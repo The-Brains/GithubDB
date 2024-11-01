@@ -219,7 +219,7 @@ export class GithubApi {
     const organizationName = options.repo?.owner ?? this.organizationName;
     const databaseStorageRepoName = options.repo?.name ?? this.databaseStorageRepoName;
 
-    const data = await this.getData(key);
+    const data = await this.getData(key, options);
     const value = typeof (valueOrCall) === "function" ? await valueOrCall(data) : valueOrCall;
 
     if (data.data) {
@@ -240,7 +240,7 @@ export class GithubApi {
       branch: options?.branch,
       committer: options?.committer ?? {
         name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
-        email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
+        email: `${options?.externalUsername ? options?.externalUsername : "user"}+GithubDB[bot]@users.noreply.github.com`,
       },
       author: options?.author,
     });
