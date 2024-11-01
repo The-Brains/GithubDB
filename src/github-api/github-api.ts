@@ -240,7 +240,7 @@ export class GithubApi {
       branch: options?.branch,
       committer: options?.committer ?? {
         name: `GithubDB ${options?.externalUsername ?? ""}[bot]`,
-        email: `${options?.externalUsername ?? "user"}+GithubDB[bot]@users.noreply.github.com`,
+        email: `${options?.externalUsername ? options?.externalUsername : "user"}+GithubDB[bot]@users.noreply.github.com`,
       },
       author: options?.author,
     });
