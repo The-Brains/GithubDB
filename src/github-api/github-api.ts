@@ -230,12 +230,13 @@ export class GithubApi {
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
     const isBlob = value instanceof Blob;
-    const content = value === null ? null : isBlob ? await this.makeBase64Blob(value) : btoa(JSON.stringify(value, null, 2));
+    const isRawText = typeof value === "string";
+    const content = value === null ? null : isBlob ? await this.makeBase64Blob(value) : btoa(isRawText ? value : JSON.stringify(value, null, 2));
     const url = `${this.rootURL}/repos/${organizationName}/${databaseStorageRepoName}/${path}`;
 
     const newData = JSON.stringify({
       message: `Creating key/value for key: '${key}'`,
-      content: content,
+      content,
       sha: data.sha,
       branch: options?.branch,
       committer: options?.committer ?? {
