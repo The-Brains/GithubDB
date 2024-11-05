@@ -230,9 +230,10 @@ export class GithubApi {
     const hasExtension = EXTENSION_REGEX.test(key);
     const path = `contents/data/${key}${hasExtension ? "" : ".json"}`;
     const blob = value === null ? null :
-      typeof value === "object" ?
-        new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }) :
-        new Blob([`${value}`], { type: 'text/plain' });
+      value instanceof Blob ? value :
+        typeof value === "object" ?
+          new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }) :
+          new Blob([`${value}`], { type: 'text/plain' });
     const url = `${this.rootURL}/repos/${organizationName}/${databaseStorageRepoName}/${path}`;
     const content = blob === null ? null : await this.makeBase64Blob(blob);
 
